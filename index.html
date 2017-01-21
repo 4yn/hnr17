@@ -154,15 +154,30 @@
 
 		function render() {
 			requestAnimationFrame(render);
-			px -= (px - bx) / 10;
-			py -= (py - by) / 10;
-			pz -= (pz - bz) / 10;
-			ball.position.x = bx;
-			ball.position.y = by;
-			ball.position.z = bz;
-			console.log("" + bx + "  " + by);
-			var a = {}; a["x"] = (bx/23)*(1920/2)+ (1920/2); a["y"] = -(by/20)*(1080/2)+ (1080/2);
-			// ipcRenderer.send('asynchronous-message', a) //-20 17, 20 -16
+			var dx = px - bx;
+			var dy = py - by;
+			var dz = pz - bz;
+			if (dx*dx + dy*dy + dz*dz > 0.02 * (50 - bz)) {
+				px = bx;
+				py = by;
+				pz = bz;
+				ball.position.x = px;
+				ball.position.y = py;
+				ball.position.z = pz;
+			} else {
+				px -= dx / 10;
+				py -= dy / 10;
+				pz -= dz / 10;
+			}
+
+			var screenx = 1920;
+			var screeny = 1080;
+			var a = {};
+
+			a["x"] = (px/(width * pz * 16/600/36))*(screenx/2) + (screenx/2);
+			a["y"] = -(py/(height * pz * 13/450/36))*(screeny/2) + (screeny/2);
+			console.log(a);
+			ipcRenderer.send('asynchronous-message', a) //-20 17, 20 -16
 			renderer.render(scene, tcam);
 		}
 

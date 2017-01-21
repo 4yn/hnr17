@@ -1,7 +1,9 @@
-const {app, BrowserWindow,ipcMain} = require('electron')
+const {app, BrowserWindow, ipcMain, globalShortcut} = require('electron')
 const path = require('path')
 const url = require('url')
 var robot = require('robotjs')
+
+var disabled = false;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -33,7 +35,13 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow();
+  const disable = globalShortcut.register('CommandOrControl+X', () => {
+    disabled = !disabled
+  });
+
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -53,7 +61,7 @@ app.on('activate', () => {
 })
 
 ipcMain.on('asynchronous-message', (event, arg) => {
-  robot.moveMouse(arg["x"], arg["y"]);
+  if (!disabled) robot.moveMouse(arg["x"], arg["y"]);
 })
 
 ipcMain.on('asynchronous-space', (event, arg) => {
