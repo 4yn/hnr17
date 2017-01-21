@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>HnR 2017</title>
+	<script src="tracking-min.js"></script>
+	<script src="three.js"></script>
+	<style>
+		body{
+			display: absolute;
+			top: 0px; bottom: 0px;
+			left: 0px; right: 0px;
+			width: 400px; height: 300px;
+			overflow: hidden;
+			-webkit-app-region: drag;
+		}
+		#camera, #screen, #overlay{
+			position: absolute;
+			/*background-color: #141E63;*/
+			width: 400px; height: 300px;
+			left: 0px; top: 0px;
+			bottom: 0px; right: 0px;
+			transform: rotateY(180deg);
+		    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+		    -moz-transform:rotateY(180deg); /* Firefox */
+		}
+		.noselect {
+		  -webkit-touch-callout: none; /* iOS Safari */
+		    -webkit-user-select: none; /* Safari*/
+		     -khtml-user-select: none; /* Konqueror */
+		       -moz-user-select: none; /* Firefox */
+		        -ms-user-select: none; /* Internet Explorer/Edge */
+		            user-select: none; /* Non-prefixed version, currently
+		                                  supported by Chrome and Opera */
+		}
+		/*.overlay-hold{
+			background-color: blue;
+		}*/
+	</style>
+</head>
+<body>
+	<div id="container" class="noselect">
+		<div id="video-wrapper">
+			<video id="camera" width="400" height="300" preload autoplay loop muted></video>
+			<canvas id="screen" width="400" height="300"></canvas>
+		</div>
+		<!-- <div id="overlay" class="overlay-hold"></div> -->
+	</div>
+	 
+	<script>
+		const {ipcRenderer} = require('electron');
+		var bx = 0, by = 0, bz = 5;
+		var px = 0, py = 0, pz = 0;
+		var scene = new THREE.Scene();
+		var tcam = new THREE.PerspectiveCamera(100, 400/300, 0.1, 1000);
+		var renderer = new THREE.WebGLRenderer();
+		renderer.setSize(1060, 600);
+		// document.getElementById("video-wrapper").appendChild(renderer.domElement);
+
+		var ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+		var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+		var ball = new THREE.Mesh(ballGeometry, material);
+		scene.add(ball);
+
+		tcam.position.x = 0;
+		tcam.position.y = 0;
+		tcam.position.z = 100;
+
+
+		function render() {
+			requestAnimationFrame(render);
+			renderer.render(scene, tcam);
+		}
+
+		render();
+		var width = 400;
+		var height = 300;
+
+	 	tracking.ColorTracker.registerColor('tracker', function (r, g, b) {
+	 		var ir = 130, ig = 60, ib = 60;
+	 		var dr = (ir - r)/256;
+	 		var dg = (ig - g)/256;
+	 		var db = (ib - b)/256;
+	 		return (dr*dr + dg*dg + db*db < 0.010);
+	 	});
+
+	 	var tracker = new tracking.ColorTracker(['yellow']);
+	 	tracker.setMinDimension(10);
+
+	 	var camera = document.getElementById('camera');
+	 	var canvas = document.getElementById('screen');
+	 	var context = canvas.getContext('2d');
+
+		tracking.track('#camera', tracker, {camera: true});
+
+		tracker.on('track', function (e) {
+			context.clearRect(0, 0, width, height);
+			if (e.data.length) {
+				e.data.forEach(function(rect) {
+
+					var cx = rect.x + rect.width/2;
+					var cy = rect.y + rect.height/2;
+					var r = (rect.height + rect.width)/4;
+					context.strokeStyle = "#ffffff";
+
+					context.beginPath();
+					context.arc(cx, cy, r, 0, Math.PI*2, true);
+					context.stroke();
+					context.closePath();
+
+					var x0 = 16;
+					var y0 = 13;
+					var z0 = 30;
+					var r0 = 36;
+
+					bz = z0 / r * r0;
+					bx = (width - 2 * cx) * bz * x0/width/z0;
+					by = (height - 2 * cy) * bz * y0/height/z0;
+				});
+			}
+		});
+
+		// function togglehold(event,args){
+		// 	document.getElementById("overlay").toggleClass("overlay-hold");
+		// }
+
+		// ipcRenderer.on('near', togglehold());
+		// ipcRenderer.on('far', togglehold());
+
+	 </script>
+</body>
+</html>

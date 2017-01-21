@@ -9,46 +9,36 @@
 		body {
 			position: relative;
 		}
-
 		#main-container {
 			padding: 20px;
 		}
-
 		#video-wrapper {
-			transform-origin: 100% 100% 0;
-			transform: scale(0.5, 0.5);
-			width: 300px;
-			height: 225px;
+			opacity: 0;
 			position: fixed;
+			height: 450px;
+			width: 600px;
 			bottom: 0;
 			right: 0;
 		}
-
 		.binding-title {
 			font-size: 24px;
 			font-weight: 300;
-
 		}
-
 		#update-bindings {
 			margin-top: 10px;
 		}
-
 		#axis-diagram {
 			margin-top: 40px;
 			height: 180px;
 		}
-
 		#main-container .level {
 			margin-top: 10px;
 			margin-bottom: 0;
 		}
-
 		.subheader {
 			font-size: 20px;
 			font-weight: 300;
 		}
-
 		.condition-select {
 			margin-right: 10px;
 		}
@@ -185,10 +175,10 @@
 			</div>
 		</div>
 	</div>
-	
 	 
 	<script>
 		const {ipcRenderer} = require('electron');
+
 		var bx = 0, by = 0, bz = 5;
 		var px = 0, py = 0, pz = 0;
 		var scene = new THREE.Scene();
@@ -206,39 +196,80 @@
 		tcam.position.y = 0;
 		tcam.position.z = 100;
 
-
 		function render() {
 			requestAnimationFrame(render);
+			renderer.render(scene, tcam);
+		}
+
+		var screenx = 1920;
+		var screeny = 1080;
+
+		var width = 600;
+		var height = 450;
+
+		// var stable,laststable; 
+
+		var m1down=-1;
+
+		function movePointer(){
+
+			var a = {};
+
 			var dx = px - bx;
 			var dy = py - by;
 			var dz = pz - bz;
-			if (dx*dx + dy*dy + dz*dz > 0.02 * (50 - bz)) {
+
+			if(pz<35.0 && m1down==0){
+				m1down = 1;
+				ipcRenderer.send('near', null);
+			} else if (pz>=35.0 && m1down==1) {
+				m1down = 0;
+				ipcRenderer.send('far', null);
+			} else if (m1down==-1 && pz>40){
+				m1down = 0;
+			}
+			
+			if (dx*dx + dy*dy + dz*dz > 0.05 * (50 - bz)) {
 				px = bx;
 				py = by;
 				pz = bz;
 				ball.position.x = px;
 				ball.position.y = py;
 				ball.position.z = pz;
+				stable = 0;
+				// if(dx*dx + dy*dy> 400  && m1down==0 ){
+				// 	console.log(dx*dx + dy*dy)
+				// 	ipcRenderer.send('tracker-move', laststable)
+				// 	m1down = -1;
+				// 	ipcRenderer.send('clickonce', null);
+				// }
 			} else {
+				a["s"] = true;
 				px -= dx / 10;
 				py -= dy / 10;
 				pz -= dz / 10;
+				stable = 1;
 			}
-
-			var screenx = 1920;
-			var screeny = 1080;
-			var a = {};
 
 			a["x"] = (px/(width * pz * 16/600/36))*(screenx/2) + (screenx/2);
 			a["y"] = -(py/(height * pz * 13/450/36))*(screeny/2) + (screeny/2);
-			console.log(a);
-			ipcRenderer.send('asynchronous-message', a) //-20 17, 20 -16
-			renderer.render(scene, tcam);
-		}
+			// if(stable==1) laststable = a;
+			ipcRenderer.send('tracker-move', a) //-20 17, 20 -16
+
+			// console.log("" + pz + " " + dz);;
+
+			setTimeout(function(){
+			  movePointer();
+			}, 15);
+		};
+		
 
 		render();
-		var width = 600;
-		var height = 450;
+		
+
+		setTimeout(function(){
+		  movePointer();
+		}, 500);
 
 	 	tracking.ColorTracker.registerColor('tracker', function (r, g, b) {
 	 		var ir = 130, ig = 60, ib = 60;

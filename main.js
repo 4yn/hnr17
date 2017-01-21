@@ -7,29 +7,61 @@ var disabled = false;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win
+let mainWin,miniWin;
+
+function spawnMini(){
+  if(miniWin==null){
+    miniWin = new BrowserWindow({width: 400, height: 300,frame:false, resizable: false, transparent: true});
+    miniWin.setAlwaysOnTop(true,"status");
+    // miniWin.webContents.openDevTools()
+    miniWin.loadURL(url.format({
+    pathname: path.join(__dirname, 'mini.html'),
+    protocol: 'file:',
+    slashes: true
+  }))
+  } else {
+    miniWin.restore();
+  }
+  // miniWin.webContents.openDevTools()
+}
+
+function killMini(){
+  miniWin.minimize();
+}
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({width: 820, height: 570, resizable: false})
+  mainWin = new BrowserWindow({width: 820, height: 450, resizable: false})
 
   // and load the index.html of the app.
-  win.loadURL(url.format({
+  mainWin.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
   }))
 
   // Open the DevTools.
-  win.webContents.openDevTools()
+  mainWin.webContents.openDevTools()
 
   // Emitted when the window is closed.
-  win.on('closed', () => {
+  mainWin.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    win = null
+    mainWin = null
   })
+
+  spawnMini();
+  // mainWin.on('blur', () => {
+  //   // mainWin.minimize();
+  //   // spawn preview window
+  //   // mainWin.minimize();
+  //   spawnMini();
+  // })
+  // mainWin.on('focus', () => {
+  //   // spawn preview window
+  //   if(miniWin!=null) killMini();
+  // })
 }
 
 // This method will be called when Electron has finished
@@ -37,10 +69,12 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow();
-  const disable = globalShortcut.register('CommandOrControl+X', () => {
-    disabled = !disabled
-  });
-
+  // const disable = globalShortcut.register('CommandOrControl+X', () => {
+  //   disabled = !disabled
+  // });
+  // const showmain = globalShortcut.register('CommandOrControl+Z', () => {
+  //   mainWin.restore();
+  // });
 })
 
 // Quit when all windows are closed.
@@ -60,16 +94,22 @@ app.on('activate', () => {
   }
 })
 
-ipcMain.on('asynchronous-message', (event, arg) => {
+ipcMain.on('tracker-move', (event, arg) => {
   if (!disabled) robot.moveMouse(arg["x"], arg["y"]);
 })
 
-ipcMain.on('asynchronous-space', (event, arg) => {
+ipcMain.on('tracker-keypress', (event, arg) => {
   robot.keyTap("enter");
 })
 
-  
+ipcMain.on('near', (event, arg) => {
+  robot.mouseToggle("down");
+})
 
+ipcMain.on('far', (event, arg) => {
+  robot.mouseToggle("up");
+})
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+// ipcMain.on('clickonce', (event, arg) => {
+//   robot.mouseClick();
+// })
