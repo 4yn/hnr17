@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>HnR 2017</title>
+	<script src="tracking-min.js"></script>
+	<script src="three.js"></script>
+	<style>
+		/* 
+			Palette:
+			#A44200 Dim orange
+			#DBDAE5 Off white
+			#00191E Off black
+			#1F3B47 Dark turquoise
+			#141E63 Blue
+		*/
+		body{
+			background-col/*or: #141E63;
+			color: #DBDAE5;*/
+			background-color: #eee;
+			color: #111;
+			display: absolute;
+			top: 0px; bottom: 0px;
+			left: 0px; right: 0px;
+			width: 820px; height: 570px; 
+			margin: 0px;
+			font-family: "Roboto", sans-serif;
+			font-size: 14px;
+		}
+		#container {
+			display: absolute;
+			top: 0px; bottom: 0px;
+			left: 0px; right: 0px;
+			width: 820px; height: 570px; 
+		}
+		#headerbar{
+			display: absolute;
+			top: 0px; left: 0px;
+			width: 820px; height: 120px;
+			/*background-color: #141E63;*/
+			vertical-align: center;
+			font-size: 50px;
+		}
+		#title-holder{
+			position: absolute;
+			padding-left: 150px;
+			letter-spacing: 5px;
+			top: 24px;
+		}
+		#sidebar{
+			display: absolute;
+			top: 0px; left: 0px;
+			height:450px; width: 220px;
+			color: #00191E;
+			/*background-color: #DBDAE5;*/
+		}
+		#sidebar-inner{
+			position: relative;
+			padding: 15px 15px;
+		}
+		#options-header{
+			font-size: 20px;
+			font-weight: bold;
+		}
+		#options-list{
+			list-style: none;
+			padding: 0px 5px;
+			font-size: 20px;
+		}
+		li{
+			margin: 15px 0px;
+		}
+		.ping-btn{
+			float: left;
+			text-align: center;
+			min-height: 12px; min-width: 14px;
+			border-radius: 10px;
+			margin: 0px 6px 20px 0px;
+			padding: 0px 2px;
+			border: solid 2px #A44200;
+		}
+		.center-btns{
+			display: inline-block;
+			text-align: center;
+		}
+		/*#video-wrapper{
+			display: absolute;
+			top:120px;
+			left:220px;
+			height:600px;
+			width:1060px;
+		}*/
+		#camera, #screen {
+			position: absolute;
+			/*background-color: #141E63;*/
+			left: 220px;
+			top: 120px;
+			bottom: 0px; right: 0px;
+		}
+		.noselect {
+		  -webkit-touch-callout: none; /* iOS Safari */
+		    -webkit-user-select: none; /* Safari*/
+		     -khtml-user-select: none; /* Konqueror */
+		       -moz-user-select: none; /* Firefox */
+		        -ms-user-select: none; /* Internet Explorer/Edge */
+		            user-select: none; /* Non-prefixed version, currently
+		                                  supported by Chrome and Opera */
+		}
+	</style>
+</head>
+<body>
+	<div id="container" class="noselect">
+		<div id="headerbar">
+			<div id="logo-holder"></div>
+			<div id="title-holder"> Insert Title Here. </div>
+		</div>
+		<div id="sidebar">
+			<div id="sidebar-inner">
+				<span id="options-header"> Options </span>
+				<ul id="options-list">
+					<li> <span class="ping-btn">Show preview window</span>  </li>
+					<li> Control Schemes </li>
+					<li class="center-btns"> <span class="ping-btn">Type A</span> <span class="ping-btn">Type B</span></li>
+					<li> Disable Hotkey </li>
+					<li> "Jab" Hotkey </li>
+				</ul>
+			</div>
+		</div>
+		<div id="video-wrapper">
+			<video id="camera" width="600" height="450" preload autoplay loop muted></video>
+			<canvas id="screen" width="600" height="450"></canvas>
+		</div>
+	</div>
+	 
+	<script>
+		const {ipcRenderer} = require('electron');
+		var bx = 0, by = 0, bz = 5;
+		var px = 0, py = 0, pz = 0;
+		var scene = new THREE.Scene();
+		var tcam = new THREE.PerspectiveCamera(100, 600/450, 0.1, 1000);
+		var renderer = new THREE.WebGLRenderer();
+		renderer.setSize(1060, 600);
+		// document.getElementById("video-wrapper").appendChild(renderer.domElement);
+
+		var ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+		var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+		var ball = new THREE.Mesh(ballGeometry, material);
+		scene.add(ball);
+
+		tcam.position.x = 0;
+		tcam.position.y = 0;
+		tcam.position.z = 100;
+
+
+		function render() {
+			requestAnimationFrame(render);
+			px -= (px - bx) / 10;
+			py -= (py - by) / 10;
+			pz -= (pz - bz) / 10;
+			ball.position.x = bx;
+			ball.position.y = by;
+			ball.position.z = bz;
+			console.log("" + bx + "  " + by);
+			var a = {}; a["x"] = (bx/23)*(1920/2)+ (1920/2); a["y"] = -(by/20)*(1080/2)+ (1080/2);
+			// ipcRenderer.send('asynchronous-message', a) //-20 17, 20 -16
+			renderer.render(scene, tcam);
+		}
+
+		render();
+		var width = 600;
+		var height = 450;
+
+	 	tracking.ColorTracker.registerColor('tracker', function (r, g, b) {
+	 		var ir = 130, ig = 60, ib = 60;
+	 		var dr = (ir - r)/256;
+	 		var dg = (ig - g)/256;
+	 		var db = (ib - b)/256;
+	 		return (dr*dr + dg*dg + db*db < 0.010);
+	 	});
+
+	 	var tracker = new tracking.ColorTracker(['yellow']);
+	 	tracker.setMinDimension(10);
+
+	 	var camera = document.getElementById('camera');
+	 	var canvas = document.getElementById('screen');
+	 	var context = canvas.getContext('2d');
+
+		tracking.track('#camera', tracker, {camera: true});
+
+		tracker.on('track', function (e) {
+			context.clearRect(0, 0, 600, 450);
+			if (e.data.length == 1) {
+				e.data.forEach(function(rect) {
+
+					var cx = rect.x + rect.width/2;
+					var cy = rect.y + rect.height/2;
+					var r = (rect.height + rect.width)/4;
+					context.strokeStyle = "#ffffff";
+
+					context.beginPath();
+					context.arc(cx, cy, r, 0, Math.PI*2, true);
+					context.stroke();
+					context.closePath();
+
+					var x0 = 16;
+					var y0 = 13;
+					var z0 = 30;
+					var r0 = 36;
+
+					bz = z0 / r * r0;
+					bx = (width - 2 * cx) * bz * x0/600/z0;
+					by = (height - 2 * cy) * bz * y0/450/z0;
+				});
+			}
+		});
+	 </script>
+</body>
+</html>
