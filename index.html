@@ -6,131 +6,186 @@
 	<script src="tracking-min.js"></script>
 	<script src="three.js"></script>
 	<style>
-		/* 
-			Palette:
-			#A44200 Dim orange
-			#DBDAE5 Off white
-			#00191E Off black
-			#1F3B47 Dark turquoise
-			#141E63 Blue
-		*/
-		body{
-			background-col/*or: #141E63;
-			color: #DBDAE5;*/
-			background-color: #eee;
-			color: #111;
-			display: absolute;
-			top: 0px; bottom: 0px;
-			left: 0px; right: 0px;
-			width: 820px; height: 570px; 
-			margin: 0px;
-			font-family: "Roboto", sans-serif;
-			font-size: 14px;
-		}
-		#container {
-			display: absolute;
-			top: 0px; bottom: 0px;
-			left: 0px; right: 0px;
-			width: 820px; height: 570px; 
-		}
-		#headerbar{
-			display: absolute;
-			top: 0px; left: 0px;
-			width: 820px; height: 120px;
-			/*background-color: #141E63;*/
-			vertical-align: center;
-			font-size: 50px;
-		}
-		#title-holder{
-			position: absolute;
-			padding-left: 150px;
-			letter-spacing: 5px;
-			top: 24px;
-		}
-		#sidebar{
-			display: absolute;
-			top: 0px; left: 0px;
-			height:450px; width: 220px;
-			color: #00191E;
-			/*background-color: #DBDAE5;*/
-		}
-		#sidebar-inner{
+		body {
 			position: relative;
-			padding: 15px 15px;
 		}
-		#options-header{
+
+		#main-container {
+			padding: 20px;
+		}
+
+		#video-wrapper {
+			transform-origin: 100% 100% 0;
+			transform: scale(0.5, 0.5);
+			width: 300px;
+			height: 225px;
+			position: fixed;
+			bottom: 0;
+			right: 0;
+		}
+
+		.binding-title {
+			font-size: 24px;
+			font-weight: 300;
+
+		}
+
+		#update-bindings {
+			margin-top: 10px;
+		}
+
+		#axis-diagram {
+			margin-top: 40px;
+			height: 180px;
+		}
+
+		#main-container .level {
+			margin-top: 10px;
+			margin-bottom: 0;
+		}
+
+		.subheader {
 			font-size: 20px;
-			font-weight: bold;
+			font-weight: 300;
 		}
-		#options-list{
-			list-style: none;
-			padding: 0px 5px;
-			font-size: 20px;
-		}
-		li{
-			margin: 15px 0px;
-		}
-		.ping-btn{
-			float: left;
-			text-align: center;
-			min-height: 12px; min-width: 14px;
-			border-radius: 10px;
-			margin: 0px 6px 20px 0px;
-			padding: 0px 2px;
-			border: solid 2px #A44200;
-		}
-		.center-btns{
-			display: inline-block;
-			text-align: center;
-		}
-		/*#video-wrapper{
-			display: absolute;
-			top:120px;
-			left:220px;
-			height:600px;
-			width:1060px;
-		}*/
-		#camera, #screen {
-			position: absolute;
-			/*background-color: #141E63;*/
-			left: 220px;
-			top: 120px;
-			bottom: 0px; right: 0px;
-		}
-		.noselect {
-		  -webkit-touch-callout: none; /* iOS Safari */
-		    -webkit-user-select: none; /* Safari*/
-		     -khtml-user-select: none; /* Konqueror */
-		       -moz-user-select: none; /* Firefox */
-		        -ms-user-select: none; /* Internet Explorer/Edge */
-		            user-select: none; /* Non-prefixed version, currently
-		                                  supported by Chrome and Opera */
+
+		.condition-select {
+			margin-right: 10px;
 		}
 	</style>
+	<link rel="stylesheet" href="bulma.css">
 </head>
 <body>
-	<div id="container" class="noselect">
-		<div id="headerbar">
-			<div id="logo-holder"></div>
-			<div id="title-holder"> Insert Title Here. </div>
-		</div>
-		<div id="sidebar">
-			<div id="sidebar-inner">
-				<span id="options-header"> Options </span>
-				<ul id="options-list">
-					<li> <span class="ping-btn">Show preview window</span>  </li>
-					<li> Control Schemes </li>
-					<li class="center-btns"> <span class="ping-btn">Type A</span> <span class="ping-btn">Type B</span></li>
-					<li> Disable Hotkey </li>
-					<li> "Jab" Hotkey </li>
-				</ul>
+	<div id="video-wrapper">
+		<video id="camera" width="600" height="450" preload autoplay loop muted></video>
+		<canvas id="screen" width="600" height="450"></canvas>
+	</div>
+	<div id="main-container" class="container">
+		<div class="columns">
+			
+			<div class="column">
+				<h1 class="title">Bindings</h1>
+				<div class="level">
+					<div class="level-left">
+						<h2 class="binding-title">Mouse X</h2>
+					</div>
+					<div class="level-right">
+						<span class="select is-large" name="axis-select">
+							<select>
+								<option value="none">None</option>
+								<option value="x">X position</option>
+								<option value="y">Y position</option>
+								<option value="z">Z position</option>
+							</select>
+						</span>
+					</div>
+				</div>
+				<div class="level">
+					<div class="level-left">
+						<h2 class="binding-title">Mouse Y</h2>
+					</div>
+					<div class="level-right">
+						<span class="select is-large" name="axis-select">
+							<select>
+								<option value="none">None</option>
+								<option value="x">X position</option>
+								<option value="y">Y position</option>
+								<option value="z">Z position</option>
+							</select>
+						</span>
+					</div>
+				</div>
+				<hr/>
+				<div class="level">
+					<div class="level-left">
+						<div class="level-item">
+							<button class="button" id="click-binding-btn">Click Binding</button>
+						</div>
+						<div class="level-item">
+							<button class="button" id="keyboard-binding-btn">Keyboard Binding</button>
+						</div>
+						
+					</div>
+				</div>
+				<div class="level">
+					<div class="level-left">
+						<div class="level-item">
+							<a class="delete"></a>
+						</div>
+						<div class="level-item">
+							<input class="input" placeholder="Key"/>
+						</div>
+						
+					</div>
+					<div class="level-right">
+						<span class="select condition-select" name="condition-select">
+							<select>
+								<option value="low">Low</option>
+								<option value="high">High</option>
+								<option value="increasing">Increasing</option>
+								<option value="decreasing">Decreasing</option>
+								<option value="jab">Jab</option>
+							</select>
+						</span>
+						<span class="select variable-select" name="axis-select">
+							<select>
+								<option value="x">X position</option>
+								<option value="y">Y position</option>
+								<option value="z">Z position</option>
+							</select>
+						</span>
+					</div>
+				</div>
+				<div class="level">
+					<div class="level-left">
+						<div class="level-item">
+							<a class="delete"></a>
+						</div>
+						<div class="level-item">
+							<span class="select condition-select">
+							<select>
+								<option value="left">Left Click</option>
+								<option value="right">Right Click</option>
+								<option value="up">Scroll Up</option>
+								<option value="down">Scroll Down</option>
+							</select>
+						</span>
+						</div>
+						
+					</div>
+					<div class="level-right">
+						<span class="select condition-select">
+							<select>
+								<option value="low">Low</option>
+								<option value="high">High</option>
+								<option value="increasing">Increasing</option>
+								<option value="decreasing">Decreasing</option>
+								<option value="jab">Jab</option>
+							</select>
+						</span>
+						<span class="select variable-select">
+							<select>
+								<option value="x">X position</option>
+								<option value="y">Y position</option>
+								<option value="z">Z position</option>
+							</select>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="column is-one-third">
+				<h1 class="title">Settings</h1>
+				<button class="button is-large is-danger">
+					Disable (Ctrl+X)
+				</button>
+				<button class="button is-large" id="update-bindings">
+					Update Bindings
+				</button>
+				<img src="axis_diagram.png" id="axis-diagram" alt="" class="image">
 			</div>
 		</div>
-		<div id="video-wrapper">
-			<video id="camera" width="600" height="450" preload autoplay loop muted></video>
-			<canvas id="screen" width="600" height="450"></canvas>
-		</div>
 	</div>
+	
 	 
 	<script>
 		const {ipcRenderer} = require('electron');
