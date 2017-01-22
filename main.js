@@ -5,6 +5,7 @@ var robot = require('robotjs')
 
 var disabled = false;
 var mousedown = false;
+var keyStatus = {};
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -70,9 +71,9 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow();
-  // const disable = globalShortcut.register('CommandOrControl+X', () => {
-  //   disabled = !disabled
-  // });
+  const disable = globalShortcut.register('CommandOrControl+X', () => {
+    disabled = !disabled
+  });
   // const showmain = globalShortcut.register('CommandOrControl+Z', () => {
   //   mainWin.restore();
   // });
@@ -90,7 +91,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (win === null) {
+  if (mainWin === null) {
     createWindow()
   }
 })
@@ -111,9 +112,32 @@ ipcMain.on('tracker-bindings', (event, arg) => {
   if (arg["left_down"] && !mousedown) {
     robot.mouseToggle("down");
     mousedown = true;
-  } else if (mousedown) {
+  } else if (!arg["left_down"] && mousedown) {
     robot.mouseToggle("up");
     mousedown = false;
+  }
+
+  for (var i = 0; i < arg["keys"].length; i++) {
+    if (!(arg["keys"][i] in keyStatus)) {
+      keyStatus[arg["keys"][i]] = {};
+      keyStatus[arg["keys"][i]].down = true;
+      robot.keyToggle(arg["keys"][i], "down");
+    }
+  }
+
+  for (var key in keyStatus) {
+    if (arg["keys"].indexOf(key) == -1) {
+      keyStatus[key].down = false;
+      try {
+        robot.keyToggle(key, "up");
+      } catch(err) {
+
+      }
+      
+    } else if (arg["keys"].indexOf(key) != -1 && !keyStatus[key].down) {
+      keyStatus[key].down = true;
+      robot.keyToggle(key, "down");
+    }
   }
 });
 

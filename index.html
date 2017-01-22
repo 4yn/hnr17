@@ -174,8 +174,8 @@
 			</div>
 			<div class="column is-one-third">
 				<h1 class="title">Settings</h1>
-				<button class="button is-large is-danger">
-					Disable (Ctrl+X)
+				<button class="button is-large is-danger" id="toggle">
+					Toggle
 				</button>
 				<button class="button is-large" id="update-bindings">
 					Update Bindings
@@ -203,6 +203,8 @@
 		var mouse_x_controller = "";
 		var mouse_y_controller = "";
 
+		var disabled = true;
+
 		// var stable,laststable; 
 
 		var m1down=-1;
@@ -216,13 +218,13 @@
 			var dz = pz - bz;
 
 			//Conditions
-			var low_x = px < -(width * pz * 16/600/36) * 0.6;
-			var high_x = px > (width * pz * 16/600/36) * 0.6;
+			var low_x = px < -(width * pz * 16/600/36) * 0.5;
+			var high_x = px > (width * pz * 16/600/36) * 0.5;
 			var incr_x = dx > 0.2;
 			var decr_x = dx < 0.2;
 
-			var low_y = py < (height * pz * 13/450/36) * 0.6;
-			var high_y = py > -(height * pz * 13/450/36) * 0.6;
+			var low_y = py < (height * pz * 13/450/36) * 0.5;
+			var high_y = py > -(height * pz * 13/450/36) * 0.5;
 			var incr_y = dy > 0.2;
 			var decr_y = dy < 0.2;
 
@@ -231,34 +233,9 @@
 			var incr_z = dz > 0.2;
 			var decr_z = dz < 0.2;
 
-			if(pz < 35.0 && m1down == 0){
-				m1down = 1;
-				ipcRenderer.send('mouse-down', null);
-			} else if (pz >= 35.0 && m1down == 1) {
-				m1down = 0;
-				ipcRenderer.send('mouse-up', null);
-			} else if (m1down == -1 && pz > 40){
-				m1down = 0;
-			}
-			
-			if (dx*dx + dy*dy + dz*dz > 0.02 * (50 - pz)) {
-				px = bx;
-				py = by;
-				pz = bz;
-				stable = 0;
-				// if(dx*dx + dy*dy> 400  && m1down==0 ){
-				// 	console.log(dx*dx + dy*dy)
-				// 	ipcRenderer.send('tracker-move', laststable)
-				// 	m1down = -1;
-				// 	ipcRenderer.send('clickonce', null);
-				// }
-			} else {
-				a["s"] = true;
-				px -= dx / 10;
-				py -= dy / 10;
-				pz -= dz / 10;
-				stable = 1;
-			}
+			px -= dx / 1.5;
+			py -= dy / 1.5;
+			pz -= dz / 1.5;
 
 			var bounded_x = (px/(width * pz * 16/600/36));
 			var bounded_y = -(py/(height * pz * 13/450/36));
@@ -306,16 +283,25 @@
 				}
 			};
 
+			b["keys"] = [];
 
-			for (var binding_id in bindings) {
-				var binding = bindings[binding_id];
-				if (binding.type == "click") {
-					
-					if (binding.condition != "" && binding.variable != "" && binding.clickType != "") {
+			var validKeys = ["space", "left", "up", "down", "right"];
 
-						if (bools[binding.condition][binding.variable]) {
-							
-							b[binding.clickType] = true;
+			if (!disabled) {
+				for (var binding_id in bindings) {
+					var binding = bindings[binding_id];
+					if (binding.type == "click") {
+						if (binding.condition != "" && binding.variable != "" && binding.clickType != "") {
+							if (bools[binding.condition][binding.variable]) {
+								b[binding.clickType] = true;
+							}
+						}
+					} else if (binding.type == "keyboard") {
+						console.log()
+						if (binding.condition != "" && binding.variable != "" && binding.key != "" && (binding.key.length == 1 || validKeys.indexOf(binding.key) != -1)) {
+							if (bools[binding.condition][binding.variable]) {
+								b["keys"].push(binding.key);
+							}
 						}
 					}
 				}
@@ -362,8 +348,8 @@
 
 					var cx = rect.x + rect.width/2;
 					var cy = rect.y + rect.height/2;
-					var r = (rect.height + rect.width)/4;
 					context.strokeStyle = "#ffffff";
+					var r = (rect.height + rect.width)/4;
 
 					context.beginPath();
 					context.arc(cx, cy, r, 0, Math.PI*2, true);
@@ -431,6 +417,21 @@
 
 			bindings[binding_id].key = $(this).val();
 		});
+
+		$("#bindings").on('click', '.delete', function () {
+			var par = $(this).closest('.level');
+			var binding_id = parseInt(par.data('id'));
+
+			par.remove();
+
+			delete bindings[binding_id];
+		});
+
+		$("#toggle").on('click', function () {
+			disabled = !disabled;
+		})
+
+
 	 </script>
 </body>
 </html>
