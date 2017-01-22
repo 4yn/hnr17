@@ -4,6 +4,7 @@ const url = require('url')
 var robot = require('robotjs')
 
 var disabled = false;
+var mousedown = false;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -95,20 +96,28 @@ app.on('activate', () => {
 })
 
 ipcMain.on('tracker-move', (event, arg) => {
-  if (!disabled) robot.moveMouse(arg["x"], arg["y"]);
+  if (!disabled) {
+    if (arg["x"] != -1 && arg["y"] != -1) {
+      robot.moveMouse(arg["x"], arg["y"]);
+    } 
+  }
 })
 
 ipcMain.on('tracker-keypress', (event, arg) => {
   robot.keyTap("enter");
 })
 
-ipcMain.on('near', (event, arg) => {
-  robot.mouseToggle("down");
-})
+ipcMain.on('tracker-bindings', (event, arg) => {
+  if (arg["left_down"] && !mousedown) {
+    robot.mouseToggle("down");
+    mousedown = true;
+  } else if (mousedown) {
+    robot.mouseToggle("up");
+    mousedown = false;
+  }
+});
 
-ipcMain.on('far', (event, arg) => {
-  robot.mouseToggle("up");
-})
+//ipcMain.on('whereever you are')
 
 // ipcMain.on('clickonce', (event, arg) => {
 //   robot.mouseClick();

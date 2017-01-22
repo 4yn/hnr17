@@ -5,6 +5,9 @@
 	<title>HnR 2017</title>
 	<script src="tracking-min.js"></script>
 	<script src="three.js"></script>
+	<script src="mustache.min.js"></script>
+	<script>window.$ = window.jQuery = require('./jquery');</script>
+	<script>window.Mustache = require('./mustache.min.js');</script>
 	<style>
 		body {
 			position: relative;
@@ -44,6 +47,76 @@
 		}
 	</style>
 	<link rel="stylesheet" href="bulma.css">
+	<script id="keyboard-binding-tmpl" type="x-tmpl-mustache">
+		<div class="level keyboard-binding" data-id="{{binding_id}}">
+			<div class="level-left">
+				<div class="level-item">
+					<a class="delete"></a>
+				</div>
+				<div class="level-item">
+					<input class="input" placeholder="Key"/>
+				</div>
+				
+			</div>
+			<div class="level-right">
+				<span class="select condition-select">
+					<select name="condition-select">
+						<option value="low">Low</option>
+						<option value="high">High</option>
+						<option value="increasing">Increasing</option>
+						<option value="decreasing">Decreasing</option>
+						<option value="jab">Jab</option>
+					</select>
+				</span>
+				<span class="select variable-select">
+					<select name="axis-select">
+						<option value="x">X position</option>
+						<option value="y">Y position</option>
+						<option value="z">Z position</option>
+					</select>
+				</span>
+			</div>
+		</div>
+	</script>
+	<script id="mouse-binding-tmpl" type="x-tmpl-mustache">
+		<div class="level click-binding" data-id="{{binding_id}}">
+			<div class="level-left">
+				<div class="level-item">
+					<a class="delete"></a>
+				</div>
+				<div class="level-item">
+					<span class="select">
+						<select name="mouse-select">
+							<option value="left">Left Click</option>
+							<option value="right">Right Click</option>
+							<option value="left_down">Left Down</option>
+							<option value="up">Scroll Up</option>
+							<option value="down">Scroll Down</option>
+						</select>
+					</span>
+				</div>
+				
+			</div>
+			<div class="level-right">
+				<span class="select condition-select">
+					<select name="condition-select">
+						<option value="low">Low</option>
+						<option value="high">High</option>
+						<option value="increasing">Increasing</option>
+						<option value="decreasing">Decreasing</option>
+						<option value="jab">Jab</option>
+					</select>
+				</span>
+				<span class="select variable-select">
+					<select name="axis-select">
+						<option value="x">X position</option>
+						<option value="y">Y position</option>
+						<option value="z">Z position</option>
+					</select>
+				</span>
+			</div>
+		</div>
+	</script>
 </head>
 <body>
 	<div id="video-wrapper">
@@ -53,15 +126,15 @@
 	<div id="main-container" class="container">
 		<div class="columns">
 			
-			<div class="column">
+			<div class="column" id="bindings">
 				<h1 class="title">Bindings</h1>
-				<div class="level">
+				<div class="level" id="mouse-x-binding">
 					<div class="level-left">
 						<h2 class="binding-title">Mouse X</h2>
 					</div>
 					<div class="level-right">
-						<span class="select is-large" name="axis-select">
-							<select>
+						<span class="select is-large">
+							<select name="axis-select">
 								<option value="none">None</option>
 								<option value="x">X position</option>
 								<option value="y">Y position</option>
@@ -70,13 +143,13 @@
 						</span>
 					</div>
 				</div>
-				<div class="level">
+				<div class="level" id="mouse-y-binding">
 					<div class="level-left">
 						<h2 class="binding-title">Mouse Y</h2>
 					</div>
 					<div class="level-right">
-						<span class="select is-large" name="axis-select">
-							<select>
+						<span class="select is-large">
+							<select name="axis-select">
 								<option value="none">None</option>
 								<option value="x">X position</option>
 								<option value="y">Y position</option>
@@ -97,71 +170,7 @@
 						
 					</div>
 				</div>
-				<div class="level">
-					<div class="level-left">
-						<div class="level-item">
-							<a class="delete"></a>
-						</div>
-						<div class="level-item">
-							<input class="input" placeholder="Key"/>
-						</div>
-						
-					</div>
-					<div class="level-right">
-						<span class="select condition-select" name="condition-select">
-							<select>
-								<option value="low">Low</option>
-								<option value="high">High</option>
-								<option value="increasing">Increasing</option>
-								<option value="decreasing">Decreasing</option>
-								<option value="jab">Jab</option>
-							</select>
-						</span>
-						<span class="select variable-select" name="axis-select">
-							<select>
-								<option value="x">X position</option>
-								<option value="y">Y position</option>
-								<option value="z">Z position</option>
-							</select>
-						</span>
-					</div>
-				</div>
-				<div class="level">
-					<div class="level-left">
-						<div class="level-item">
-							<a class="delete"></a>
-						</div>
-						<div class="level-item">
-							<span class="select condition-select">
-							<select>
-								<option value="left">Left Click</option>
-								<option value="right">Right Click</option>
-								<option value="up">Scroll Up</option>
-								<option value="down">Scroll Down</option>
-							</select>
-						</span>
-						</div>
-						
-					</div>
-					<div class="level-right">
-						<span class="select condition-select">
-							<select>
-								<option value="low">Low</option>
-								<option value="high">High</option>
-								<option value="increasing">Increasing</option>
-								<option value="decreasing">Decreasing</option>
-								<option value="jab">Jab</option>
-							</select>
-						</span>
-						<span class="select variable-select">
-							<select>
-								<option value="x">X position</option>
-								<option value="y">Y position</option>
-								<option value="z">Z position</option>
-							</select>
-						</span>
-					</div>
-				</div>
+				
 			</div>
 			<div class="column is-one-third">
 				<h1 class="title">Settings</h1>
@@ -181,25 +190,9 @@
 
 		var bx = 0, by = 0, bz = 5;
 		var px = 0, py = 0, pz = 0;
-		var scene = new THREE.Scene();
-		var tcam = new THREE.PerspectiveCamera(100, 600/450, 0.1, 1000);
-		var renderer = new THREE.WebGLRenderer();
-		renderer.setSize(1060, 600);
-		// document.getElementById("video-wrapper").appendChild(renderer.domElement);
 
-		var ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-		var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-		var ball = new THREE.Mesh(ballGeometry, material);
-		scene.add(ball);
-
-		tcam.position.x = 0;
-		tcam.position.y = 0;
-		tcam.position.z = 100;
-
-		function render() {
-			requestAnimationFrame(render);
-			renderer.render(scene, tcam);
-		}
+		var bindings = {};
+		var cur_binding_id = 0;
 
 		var screenx = 1920;
 		var screeny = 1080;
@@ -207,11 +200,14 @@
 		var width = 600;
 		var height = 450;
 
+		var mouse_x_controller = "";
+		var mouse_y_controller = "";
+
 		// var stable,laststable; 
 
 		var m1down=-1;
 
-		function movePointer(){
+		function movePointer () {
 
 			var a = {};
 
@@ -219,23 +215,36 @@
 			var dy = py - by;
 			var dz = pz - bz;
 
-			if(pz<35.0 && m1down==0){
+			//Conditions
+			var low_x = px < -(width * pz * 16/600/36) * 0.6;
+			var high_x = px > (width * pz * 16/600/36) * 0.6;
+			var incr_x = dx > 0.2;
+			var decr_x = dx < 0.2;
+
+			var low_y = py < (height * pz * 13/450/36) * 0.6;
+			var high_y = py > -(height * pz * 13/450/36) * 0.6;
+			var incr_y = dy > 0.2;
+			var decr_y = dy < 0.2;
+
+			var low_z = pz < 30;
+			var high_z = pz > 70;
+			var incr_z = dz > 0.2;
+			var decr_z = dz < 0.2;
+
+			if(pz < 35.0 && m1down == 0){
 				m1down = 1;
-				ipcRenderer.send('near', null);
-			} else if (pz>=35.0 && m1down==1) {
+				ipcRenderer.send('mouse-down', null);
+			} else if (pz >= 35.0 && m1down == 1) {
 				m1down = 0;
-				ipcRenderer.send('far', null);
-			} else if (m1down==-1 && pz>40){
+				ipcRenderer.send('mouse-up', null);
+			} else if (m1down == -1 && pz > 40){
 				m1down = 0;
 			}
 			
-			if (dx*dx + dy*dy + dz*dz > 0.05 * (50 - bz)) {
+			if (dx*dx + dy*dy + dz*dz > 0.02 * (50 - pz)) {
 				px = bx;
 				py = by;
 				pz = bz;
-				ball.position.x = px;
-				ball.position.y = py;
-				ball.position.z = pz;
 				stable = 0;
 				// if(dx*dx + dy*dy> 400  && m1down==0 ){
 				// 	console.log(dx*dx + dy*dy)
@@ -251,20 +260,78 @@
 				stable = 1;
 			}
 
-			a["x"] = (px/(width * pz * 16/600/36))*(screenx/2) + (screenx/2);
-			a["y"] = -(py/(height * pz * 13/450/36))*(screeny/2) + (screeny/2);
-			// if(stable==1) laststable = a;
-			ipcRenderer.send('tracker-move', a) //-20 17, 20 -16
+			var bounded_x = (px/(width * pz * 16/600/36));
+			var bounded_y = -(py/(height * pz * 13/450/36));
+			var bounded_z = ((pz - 30) / 30 - 0.5) * 2;
+			bounded_z = Math.min(bounded_z, 1);
+			bounded_z = Math.max(bounded_z, -1);
 
-			// console.log("" + pz + " " + dz);;
+			if (mouse_x_controller == "x") {
+				a["x"] = bounded_x * (screenx/2) + (screenx/2);
+			} else if (mouse_x_controller == "y") {
+				a["x"] = bounded_y * (screenx/2) + (screenx/2);
+			} else if (mouse_x_controller == "z") {
+				a["x"] = bounded_z * (screenx/2) + (screenx/2);
+			} else {
+				a["x"] = -1;
+			}
+
+			if (mouse_y_controller == "x") {
+				a["y"] = bounded_x * (screeny/2) + (screeny/2);
+			} else if (mouse_y_controller == "y") {
+				a["y"] = bounded_y * (screeny/2) + (screeny/2);
+			} else if (mouse_y_controller == "z") {
+				a["y"] = bounded_z * (screeny/2) + (screeny/2);
+			} else {
+				a["y"] = -1;
+			}
+
+			var b = {};
+
+			var bools = {
+				"low": {
+					"x": low_x,
+					"y": low_y,
+					"z": low_z
+				},
+				"high": {
+					"x": high_x,
+					"y": high_y,
+					"z": high_z
+				},
+				"increasing": {
+					"x": incr_x,
+					"y": incr_y,
+					"z": incr_z
+				}
+			};
+
+
+			for (var binding_id in bindings) {
+				var binding = bindings[binding_id];
+				if (binding.type == "click") {
+					
+					if (binding.condition != "" && binding.variable != "" && binding.clickType != "") {
+
+						if (bools[binding.condition][binding.variable]) {
+							
+							b[binding.clickType] = true;
+						}
+					}
+				}
+			}
+
+			//console.log(a);
+			// if(stable==1) laststable = a;
+			ipcRenderer.send('tracker-move', a); //-20 17, 20 -16
+			console.log(b);
+			ipcRenderer.send('tracker-bindings', b);
+			// console.log("" + pz + " " + dz);
 
 			setTimeout(function(){
 			  movePointer();
 			}, 15);
 		};
-		
-
-		render();
 		
 
 		setTimeout(function(){
@@ -313,6 +380,56 @@
 					by = (height - 2 * cy) * bz * y0/450/z0;
 				});
 			}
+		});
+
+		$("#mouse-x-binding select[name='axis-select']").on('change', function () {
+			mouse_x_controller = $(this).val();
+		});
+
+		$("#mouse-y-binding select[name='axis-select']").on('change', function () {
+			mouse_y_controller = $(this).val();
+		});
+
+		$("#click-binding-btn").on('click', function () {
+			var tmpl = $('#mouse-binding-tmpl').html();
+			Mustache.parse(tmpl);
+			var rendered = Mustache.render(tmpl, {binding_id: cur_binding_id});
+			$(rendered).appendTo($("#bindings"));
+			bindings[cur_binding_id] = {type: "click", condition: "low", variable: "x", clickType: "left"};
+			cur_binding_id++;
+		});
+
+		$("#keyboard-binding-btn").on('click', function () {
+			var tmpl = $('#keyboard-binding-tmpl').html();
+			Mustache.parse(tmpl);
+			var rendered = Mustache.render(tmpl, {binding_id: cur_binding_id});
+			$(rendered).appendTo($("#bindings"));
+			bindings[cur_binding_id] = {type: "keyboard", condition: "low", variable: "x", key: ""};
+			cur_binding_id++;
+		});
+
+		$("#bindings").on('change', 'select', function() {
+			var par = $(this).closest('.level');
+			var binding_id = parseInt(par.data('id'));
+
+			var name = $(this).attr('name');
+			console.log(name, $(this).val(), binding_id);
+			if (name == "axis-select") {
+				bindings[binding_id].variable = $(this).val();
+			} else if (name == "condition-select") {
+				bindings[binding_id].condition = $(this).val();
+			} else if (name == "mouse-select") {
+				bindings[binding_id].clickType = $(this).val();
+			}
+
+			console.log(bindings);
+		});
+
+		$("#bindings").on('change', 'input', function () {
+			var par = $(this).closest('.level');
+			var binding_id = parseInt(par.data('id'));
+
+			bindings[binding_id].key = $(this).val();
 		});
 	 </script>
 </body>
